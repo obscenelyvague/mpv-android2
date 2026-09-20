@@ -260,6 +260,7 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
 
         binding = PlayerBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setHighestDisplayMode()
 
         // Init controls to be hidden and view fullscreen
         hideControls()
@@ -1681,6 +1682,18 @@ class MPVActivity : AppCompatActivity(), MPVLib.EventObserver, TouchGesturesObse
             return
         val lp = window.attributes
         lp.screenBrightness = lastScreenBrightness / 100f
+        window.attributes = lp
+    }
+
+    private fun setHighestDisplayMode() {
+        val display = ContextCompat.getDisplayOrDefault(this)
+        val best = display.supportedModes.maxByOrNull { it.physicalWidth * it.physicalHeight }
+            ?: return
+        // bail if diff is refresh-only
+        if (best.physicalWidth * best.physicalHeight <= display.mode.physicalWidth * display.mode.physicalHeight)
+            return
+        val lp = window.attributes
+        lp.preferredDisplayModeId = best.modeId
         window.attributes = lp
     }
 
